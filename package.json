@@ -1,0 +1,27 @@
+{
+  "name": "web3curl",
+  "version": "0.0.1",
+  "description": "Curl-like app for ERC-4804 web3:// URLs",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web3-protocol/web3curl-js.git"
+  },
+  "author": "nand",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/web3-protocol/web3curl-js/issues"
+  },
+  "homepage": "https://github.com/web3-protocol/web3curl-js#readme",
+  "bin": {
+    "web3curl": "./src/index.js"
+  },
+  "type": "module",
+  "dependencies": {
+    "web3protocol": "^0.2.1",
+    "yargs": "^17.7.2"
+  }
+}
