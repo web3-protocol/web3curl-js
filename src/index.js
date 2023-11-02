@@ -16,8 +16,14 @@ const y = yargs(hideBin(process.argv))
 let args = y.parse()
 
 
-// Add/override chain definitions
-let web3ChainOverrides = []
+//
+// Prepare the chain list
+//
+
+// Get the default ones
+let chainList = getDefaultChainList()
+
+// Handle the addition/overrides
 if(args.web3Chain) {
   if((args.web3Chain instanceof Array) == false) {
     args.web3Chain = [args.web3Chain]
@@ -35,25 +41,42 @@ if(args.web3Chain) {
     }
     let chainRpcUrl = newChainComponents.slice(1).join("=");
 
-    web3ChainOverrides.push({
+    let chainOverride = {
       id: chainId,
       rpcUrls: [chainRpcUrl]
-    })
-  })
-}
+    }
 
+    // Find if the chain already exist
+    let alreadyDefinedChain = Object.entries(chainList).find(chain => chain[1].id == chainOverride.id) || null
+
+    // If it exists, override RPCs
+    if(alreadyDefinedChain) {
+      chainList[alreadyDefinedChain[0]].rpcUrls = [...chainOverride.rpcUrls]
+    }
+    // If does not exist, create it
+    else {
+      let newChain = {
+        id: chainOverride.id,
+        name: 'custom-' + chainOverride.id,
+        rpcUrls: [...chainOverride.rpcUrls],
+      }
+      chainList.push(newChain)
+    }
+  })
+}    
+
+
+// Prepare the client
+let web3Client = new Client(chainList)
 
 // Execute the web3 call
 try {
-    let chainList = getDefaultChainList()
-    let web3Client = new Client(chainList)
+  let fetchedWeb3Url = await web3Client.fetchUrl(y.argv._[0])
 
-    let fetchedWeb3Url = await web3Client.fetchUrl(y.argv._[0])
-
-    let outputStr = new TextDecoder().decode(fetchedWeb3Url.output)
-    console.log(outputStr)
+  let outputStr = new TextDecoder().decode(fetchedWeb3Url.output)
+  console.log(outputStr)
 }
 catch(err) {
-    console.log("An error occured: " + err)
-    process.exit(1);
+  console.log("An error occured: " + err)
+  process.exit(1);
 }
