@@ -96,7 +96,8 @@ const web3Client = new Client(chainList)
   //
 
 if(args.verbose) {
-  process.stderr.write("* Parsing URL " + url + " ...\n")
+  process.stderr.write("* Fetching URL " + url + "\n")
+  process.stderr.write("* Parsing URL ...\n")
 }
 
 let parsedUrl
@@ -112,10 +113,22 @@ catch(err) {
 if(args.verbose) {
   process.stderr.write("* Host domain name resolver: " + (parsedUrl.nameResolution.resolver ?? "(none)") + "\n")
   if(parsedUrl.nameResolution.resolver) {
-    process.stderr.write("* Host domain name resolver chain: " + parsedUrl.nameResolution.chainId + "\n")
-    process.stderr.write("* Host domain name resolved: " + parsedUrl.nameResolution.resolvedName + "\n")
+    process.stderr.write("*   Resolver address: " + parsedUrl.nameResolution.resolverAddress + "\n")
+    process.stderr.write("*   Resolver chain id: " + parsedUrl.nameResolution.resolverChainId + "\n")
+    process.stderr.write("*   Resolver chain RPC: " + parsedUrl.nameResolution.resolverChainRpc + "\n")
+    process.stderr.write("*   Domain name being resolved: " + parsedUrl.nameResolution.resolvedName + "\n")
+    process.stderr.write("*   Resolution type: " + parsedUrl.nameResolution.resolutionType + "\n")
+    if(parsedUrl.nameResolution.resolutionType == "contentContractTxt") {
+      process.stderr.write("*   contentcontract TXT record: " + parsedUrl.nameResolution.erc6821ContentContractTxt + "\n")
+    }
+    process.stderr.write("*   Result address: " + parsedUrl.nameResolution.resultAddress + "\n")
+    process.stderr.write("*   Result chain id: " + (parsedUrl.nameResolution.resultChainId ?? "(not overidden)") + "\n")
   }
   process.stderr.write("* Contract address: " + parsedUrl.contractAddress + "\n")
+  process.stderr.write("* Contract chain id: " + parsedUrl.chainId + "\n")
+  process.stderr.write("* Resolve mode determination... \n")
+  process.stderr.write("> " + parsedUrl.modeDeterminationCalldata + "\n")
+  process.stderr.write("< " + (parsedUrl.modeDeterminationReturn ?? "0x") + "\n")
   process.stderr.write("* Resolve mode: " + parsedUrl.mode + "\n")
   process.stderr.write("* Contract call mode: " + parsedUrl.contractCallMode + "\n")
   if(parsedUrl.contractCallMode == "calldata") {
@@ -134,6 +147,8 @@ if(args.verbose) {
   else if(parsedUrl.contractReturnProcessing == "jsonEncodeValues") {
     process.stderr.write("* Contract return processing: " + parsedUrl.contractReturnProcessing + ": Types of values to encode: " + JSON.stringify(parsedUrl.contractReturnProcessingOptions.jsonEncodedValueTypes) + "\n")
   }
+
+  process.stderr.write("*\n")
 }
 
 
@@ -143,6 +158,9 @@ if(args.verbose) {
 
 if(args.verbose) {
   process.stderr.write("* Calling contract ...\n")
+  process.stderr.write("* RPC: " + parsedUrl.chainRpc + "\n")
+  process.stderr.write("* Contract address: " + parsedUrl.contractAddress + "\n")
+  process.stderr.write("> " + parsedUrl.calldata + "\n")
 }
 
 let contractReturn
@@ -156,6 +174,7 @@ catch(err) {
 
 if(args.verbose) {
   process.stderr.write("< " + contractReturn + "\n")
+  process.stderr.write("*\n")
 }
 
 
@@ -180,7 +199,7 @@ if(args.verbose) {
   process.stderr.write("* HTTP Status code: " + fetchedWeb3Url.httpCode + "\n")
   process.stderr.write("* HTTP Headers: " + (fetchedWeb3Url.httpHeaders.length == 0 ? "(none)" : "") + "\n")
   Object.entries(fetchedWeb3Url.httpHeaders).forEach(([headerName, headerValue]) => {
-    process.stderr.write("*  " + headerName + ": " + headerValue + "\n")
+    process.stderr.write("*   " + headerName + ": " + headerValue + "\n")
   })
 }
 
