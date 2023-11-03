@@ -1,5 +1,7 @@
 # web3curl
 
+[![npm version](https://badge.fury.io/js/web3curl.svg)](https://www.npmjs.com/package/web3curl)
+
 A Curl-like app to fetch [ERC-6860 `web3://` protocol](https://eips.ethereum.org/EIPS/eip-6860) URLs.
 
 ## Usage
