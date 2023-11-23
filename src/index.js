@@ -4,7 +4,7 @@ import yargs from "yargs";
 import { writeFileSync } from 'fs'
 import { hideBin } from 'yargs/helpers'
 import { Client } from 'web3protocol';
-import { getDefaultChainList } from 'web3protocol/src/chains/index.js';
+import { getDefaultChainList } from 'web3protocol/chains';
 
 const y = yargs(hideBin(process.argv))
   .usage("web3curl [options] <web3-url>")
