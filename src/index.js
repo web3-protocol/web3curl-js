@@ -17,8 +17,8 @@ const y = yargs(hideBin(process.argv))
   })
   .option('verbose', {
     alias: 'v',
-    type: 'integer',
-    default: 1,
+    type: 'boolean',
+    default: false,
     description: 'Make the operation more talkative',
   })
   .option('verbose2', {
