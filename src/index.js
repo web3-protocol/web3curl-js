@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import yargs from "yargs";
-import { writeFileSync } from 'fs'
+import { writeFileSync, createWriteStream } from 'fs'
 import { hideBin } from 'yargs/helpers'
 import { Client } from 'web3protocol';
 import { getDefaultChainList } from 'web3protocol/chains';
@@ -315,6 +315,7 @@ if(verbosityLevel >= 1) {
 // Fetch output from stream
 const reader = fetchedWeb3Url.output.getReader();
 let chunkNumber = 0;
+let fileWriteStream = null;
 while (true) {
   const { done, value } = await reader.read();
 
@@ -337,8 +338,12 @@ while (true) {
 
     // If requested, save on file
     if(args.output && args.output != "-") {
+      if(fileWriteStream == null) {
+        fileWriteStream = createWriteStream(args.output);
+      }
+
       try {
-        writeFileSync(args.output, Buffer.from(fetchedWeb3Url.output));
+        fileWriteStream.write(value)
       }
       catch(err) {
         process.stderr.write("web3curl: Failed to save file: " + err.message + "\n")
@@ -361,3 +366,6 @@ while (true) {
 }
 
 
+if(fileWriteStream) {
+  fileWriteStream.close()
+}
