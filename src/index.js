@@ -312,29 +312,52 @@ if(verbosityLevel >= 1) {
 }
 
 
+// Fetch output from stream
+const reader = fetchedWeb3Url.output.getReader();
+let chunkNumber = 0;
+while (true) {
+  const { done, value } = await reader.read();
 
-// Try to decode as utf8 text
-let outputStr = new TextDecoder('utf-8').decode(fetchedWeb3Url.output)
+  // We got a chunk
+  if(value) {
+    // First chunk: Detect: if output is non-utf8 and not output target was
+    // specified, ask for confirmation before printing on console
+    if(chunkNumber == 0) {
+      // Try to decode as utf8 text
+      let outputStr = new TextDecoder('utf-8').decode(value)
 
-// If we have "replacement character" (U+FFFD), then it has bad utf8
-if(outputStr.indexOf("�") !== -1 && args.output === undefined) {
-  process.stderr.write('Warning: Binary output can mess up your terminal. Use "--output -" to tell\n' +
-    'Warning: web3curl to output it to your terminal anyway, or consider "--output\n' + 
-    'Warning: <FILE>" to save to a file.\n')
-  process.exit(1);
-}
+      // If we have "replacement character" (U+FFFD), then it has bad utf8
+      if(outputStr.indexOf("�") !== -1 && args.output === undefined) {
+        process.stderr.write('Warning: Binary output can mess up your terminal. Use "--output -" to tell\n' +
+          'Warning: web3curl to output it to your terminal anyway, or consider "--output\n' + 
+          'Warning: <FILE>" to save to a file.\n')
+        process.exit(1);
+      }
+    }
 
-// Saving to file was requested
-if(args.output && args.output != "-") {
-  try {
-    writeFileSync(args.output, Buffer.from(fetchedWeb3Url.output));
+    // If requested, save on file
+    if(args.output && args.output != "-") {
+      try {
+        writeFileSync(args.output, Buffer.from(fetchedWeb3Url.output));
+      }
+      catch(err) {
+        process.stderr.write("web3curl: Failed to save file: " + err.message + "\n")
+        process.exit(1);
+      }
+    }
+    // Else, we print on console
+    else {
+      let outputStr = new TextDecoder('utf-8').decode(value)
+      process.stdout.write(outputStr)
+    }
+
+    chunkNumber++;
   }
-  catch(err) {
-    process.stderr.write("web3curl: Failed to save file: " + err.message + "\n")
-    process.exit(1);
+
+  // When no more data needs to be consumed, break the reading
+  if (done) {
+    break;
   }
 }
-// Else, we print on console
-else {
-  process.stdout.write(outputStr)
-}
+
+
