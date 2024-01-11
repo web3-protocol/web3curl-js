@@ -52,10 +52,14 @@ will output:
 * Host domain name resolver: (none)
 * Contract address: 0xA5aFC9fE76a28fB12C60954Ed6e2e5f8ceF64Ff2
 * Contract chain id: 1
+* Configured RPCs for chain 1 (fallback mode) : https://ethereum.publicnode.com https://cloudflare-eth.com
+*
 * Resolve mode determination... 
 > 0xdd473fae
 < 0x
 * Resolve mode: auto
+*
+* Path parsing... 
 * Contract call mode: method
 * Method name: levelAndTile
 * Method arguments types: [{"type":"uint256"},{"type":"uint256"}]
@@ -94,10 +98,14 @@ will output:
 *   Result chain id: 42170
 * Contract address: 0xe4ba0e245436b737468c206ab5c8f4950597ab7f
 * Contract chain id: 42170
+* Configured RPCs for chain 42170 (fallback mode) : https://nova.arbitrum.io/rpc
+*
 * Resolve mode determination... 
 > 0xdd473fae
 < 0x6d616e75616c0000000000000000000000000000000000000000000000000000
 * Resolve mode: manual
+*
+* Path parsing... 
 * Contract call mode: calldata
 * Calldata: 0x2f6373732f6d6973632e637373
 * Contract return processing: decodeABIEncodedBytes
@@ -113,7 +121,6 @@ will output:
 * HTTP Status code: 200
 * HTTP Headers: 
 *   Content-Type: text/css
-
 <return data>
 ```
 
@@ -148,10 +155,14 @@ will output:
 *   Result chain id: 42170
 * Contract address: 0xe4ba0e245436b737468c206ab5c8f4950597ab7f
 * Contract chain id: 42170
+* Configured RPCs for chain 42170 (fallback mode) : https://nova.arbitrum.io/rpc
+*
 * Resolve mode determination... 
 > 0xdd473fae
 < 0x6d616e75616c0000000000000000000000000000000000000000000000000000
 * Resolve mode: manual
+*
+* Path parsing... 
 * Contract call mode: calldata
 * Calldata: 0x2f6373732f6d6973632e637373
 * Contract return processing: decodeABIEncodedBytes
