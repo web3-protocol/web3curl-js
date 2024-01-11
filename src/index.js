@@ -243,7 +243,15 @@ if(verbosityLevel >= 1) {
 
   process.stderr.write("* Contract address: " + parsedUrl.contractAddress + "\n")
   process.stderr.write("* Contract chain id: " + parsedUrl.chainId + "\n")
+  let configuredChain = chainList.find(chain => chain.id == parsedUrl.chainId) || null
+  if(configuredChain == null) {
+    process.stderr.write("web3curl: No chain configuration found for chain : " + parsedUrl.chainId + "\n")
+    process.exit(1);
+  }
+  process.stderr.write("* Configured RPCs for chain " + parsedUrl.chainId + " (fallback mode) : " + configuredChain.rpcUrls.join(" ") + "\n")
+  process.stderr.write("*\n")
 
+  process.stderr.write("* Resolve mode determination... \n")
 }
 
 try {
@@ -263,10 +271,12 @@ catch(err) {
 
 // Verbosity : Print mode determination infos
 if(verbosityLevel >= 1) {
-  process.stderr.write("* Resolve mode determination... \n")
   process.stderr.write("> " + formatBytes(parsedUrl.modeDeterminationCalldata, verbosityLevel) + "\n")
   process.stderr.write("< " + formatBytes(parsedUrl.modeDeterminationReturn, verbosityLevel) + "\n")
   process.stderr.write("* Resolve mode: " + parsedUrl.mode + "\n")
+  process.stderr.write("*\n")
+
+  process.stderr.write("* Path parsing... \n")
 }
 
 try {
