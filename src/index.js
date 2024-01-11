@@ -141,16 +141,33 @@ if(verbosityLevel >= 1) {
   process.stderr.write("* Parsing URL ...\n")
 }
 
-let parsedUrl
+let parsedUrl = {}
+let urlMainParts
 try {
-  parsedUrl = await web3Client.parseUrl(url)
+  // Step 1.1 : Extract parts of the URL, determine if a chain id was provided.
+  let chainId
+  ({urlMainParts, chainId} = web3Client.parseUrlBasic(url))
+  parsedUrl.chainId = chainId
 }
 catch(err) {
-  process.stderr.write("web3curl: Error: " + err.message + "\n")
+  process.stderr.write("web3curl: Basic parsing: Error: " + err.message + "\n")
   process.exit(1);
 }
 
-// Parsed URL infos
+try {
+  // Step 1.2 : For a given hostname, determine the target contract address.
+  let {contractAddress, chainId: updatedChainId, nameResolution} = await web3Client.determineTargetContractAddress(urlMainParts.hostname, parsedUrl.chainId)
+  parsedUrl.contractAddress = contractAddress
+  parsedUrl.chainId = updatedChainId
+  // Informations on how the hostname of the URL was resolved
+  parsedUrl.nameResolution = nameResolution
+}
+catch(err) {
+  process.stderr.write("web3curl: Hostname resolution: Error: " + err.message + "\n")
+  process.exit(1);
+}
+
+// Verbosity : Print domain name resolution infos
 if(verbosityLevel >= 1) {
   process.stderr.write("* Host domain name resolver: " + (parsedUrl.nameResolution.resolver ?? "(none)") + "\n")
 
@@ -226,10 +243,44 @@ if(verbosityLevel >= 1) {
 
   process.stderr.write("* Contract address: " + parsedUrl.contractAddress + "\n")
   process.stderr.write("* Contract chain id: " + parsedUrl.chainId + "\n")
+
+}
+
+try {
+  // Step 1.3 : Determine the web3 mode.
+  const resolveModeDeterminationResult = await web3Client.determineResolveMode(parsedUrl.contractAddress, parsedUrl.chainId)
+  // Web3 resolve mode: 'auto', 'manual' or 'resourceRequest'
+  parsedUrl.mode = resolveModeDeterminationResult.mode
+  // The calldata sent to the contract to determine the resolve mode
+  parsedUrl.modeDeterminationCalldata = resolveModeDeterminationResult.calldata
+  // The data returned by the contract to determine the resolve mode
+  parsedUrl.modeDeterminationReturn = resolveModeDeterminationResult.return
+}
+catch(err) {
+  process.stderr.write("web3curl: Resolve mode determination: Error: " + err.message + "\n")
+  process.exit(1);
+}
+
+// Verbosity : Print mode determination infos
+if(verbosityLevel >= 1) {
   process.stderr.write("* Resolve mode determination... \n")
   process.stderr.write("> " + formatBytes(parsedUrl.modeDeterminationCalldata, verbosityLevel) + "\n")
   process.stderr.write("< " + formatBytes(parsedUrl.modeDeterminationReturn, verbosityLevel) + "\n")
   process.stderr.write("* Resolve mode: " + parsedUrl.mode + "\n")
+}
+
+try {
+  // Step 1.4 : Parse the path part of the URL, given the web3 resolve mode.
+  let parsedPath = await web3Client.parsePathForResolveMode(urlMainParts.path, parsedUrl.mode, parsedUrl.chainId)
+  parsedUrl = {...parsedUrl, ...parsedPath}
+}
+catch(err) {
+  process.stderr.write("web3curl: Path parsing: Error: " + err.message + "\n")
+  process.exit(1);
+}
+
+// Verbosity : Print contract call infos
+if(verbosityLevel >= 1) {
   process.stderr.write("* Contract call mode: " + parsedUrl.contractCallMode + "\n")
   if(parsedUrl.contractCallMode == "calldata") {
     process.stderr.write("* Calldata: " + parsedUrl.calldata + "\n")
