@@ -184,16 +184,16 @@ if(verbosityLevel >= 1) {
       let call = parsedUrl.nameResolution.fetchNameResolverCall
       
       process.stderr.write("*   Fetching resolver for domain name on " + call.contractAddress + " ...\n")
-      process.stderr.write("> " + formatBytes(call.result.calldata, verbosityLevel) + "\n")
+      process.stderr.write("> " + formatBytes(call.calldata, verbosityLevel) + "\n")
 
-      for(let badRpcIndex = 0; badRpcIndex < call.result.callResult.rpcUrlUsedIndex; badRpcIndex++) {
-        process.stderr.write("*   RPC provider error, skipped: " + call.result.callResult.rpcUrls[badRpcIndex] + " : " + call.result.callResult.rpcUrlsErrors[badRpcIndex] + "\n")
+      for(let badRpcIndex = 0; badRpcIndex < call.callResult.rpcUrlUsedIndex; badRpcIndex++) {
+        process.stderr.write("*   RPC provider error, skipped: " + call.callResult.rpcUrls[badRpcIndex] + " : " + call.callResult.rpcUrlsErrors[badRpcIndex] + "\n")
       }
-      process.stderr.write("*   RPC provider used: " + call.result.callResult.rpcUrls[call.result.callResult.rpcUrlUsedIndex] + "\n")
+      process.stderr.write("*   RPC provider used: " + call.callResult.rpcUrls[call.callResult.rpcUrlUsedIndex] + "\n")
 
-      process.stderr.write("< " + formatBytes(call.result.callResult.data, verbosityLevel) + "\n")
+      process.stderr.write("< " + formatBytes(call.callResult.data, verbosityLevel) + "\n")
 
-      process.stderr.write("*   Resolver contract: " + call.result.decodedResult + "\n")
+      process.stderr.write("*   Resolver contract: " + call.decodedResult + "\n")
       process.stderr.write("*\n")
     }
 
@@ -202,16 +202,16 @@ if(verbosityLevel >= 1) {
       let call = parsedUrl.nameResolution.erc6821ContentContractTxtCall
 
       process.stderr.write("*   Fetching contentcontract TXT field of domain name on " + call.contractAddress + " ...\n")
-      process.stderr.write("> " + formatBytes(call.result.calldata, verbosityLevel) + "\n")
+      process.stderr.write("> " + formatBytes(call.calldata, verbosityLevel) + "\n")
 
-      for(let badRpcIndex = 0; badRpcIndex < call.result.callResult.rpcUrlUsedIndex; badRpcIndex++) {
-        process.stderr.write("*   RPC provider error, skipped: " + call.result.callResult.rpcUrls[badRpcIndex] + " : " + call.result.callResult.rpcUrlsErrors[badRpcIndex] + "\n")
+      for(let badRpcIndex = 0; badRpcIndex < call.callResult.rpcUrlUsedIndex; badRpcIndex++) {
+        process.stderr.write("*   RPC provider error, skipped: " + call.callResult.rpcUrls[badRpcIndex] + " : " + call.callResult.rpcUrlsErrors[badRpcIndex] + "\n")
       }
-      process.stderr.write("*   RPC provider used: " + call.result.callResult.rpcUrls[call.result.callResult.rpcUrlUsedIndex] + "\n")
+      process.stderr.write("*   RPC provider used: " + call.callResult.rpcUrls[call.callResult.rpcUrlUsedIndex] + "\n")
       
-      process.stderr.write("< " + formatBytes(call.result.callResult.data, verbosityLevel) + "\n")
+      process.stderr.write("< " + formatBytes(call.callResult.data, verbosityLevel) + "\n")
 
-      process.stderr.write("*   contentcontract TXT record: " + (call.result.decodedResult ? call.result.decodedResult : "(empty)") + "\n")
+      process.stderr.write("*   contentcontract TXT record: " + (call.decodedResult ? call.decodedResult : "(empty)") + "\n")
       process.stderr.write("*\n")
     }
 
@@ -220,16 +220,16 @@ if(verbosityLevel >= 1) {
       let call = parsedUrl.nameResolution.resolveNameCall
       
       process.stderr.write("*   Resolving domain name with resolver " + call.contractAddress + " ...\n")
-      process.stderr.write("> " + formatBytes(call.result.calldata, verbosityLevel) + "\n")
+      process.stderr.write("> " + formatBytes(call.calldata, verbosityLevel) + "\n")
 
-      for(let badRpcIndex = 0; badRpcIndex < call.result.callResult.rpcUrlUsedIndex; badRpcIndex++) {
-        process.stderr.write("*   RPC provider error, skipped: " + call.result.callResult.rpcUrls[badRpcIndex] + " : " + call.result.callResult.rpcUrlsErrors[badRpcIndex] + "\n")
+      for(let badRpcIndex = 0; badRpcIndex < call.callResult.rpcUrlUsedIndex; badRpcIndex++) {
+        process.stderr.write("*   RPC provider error, skipped: " + call.callResult.rpcUrls[badRpcIndex] + " : " + call.callResult.rpcUrlsErrors[badRpcIndex] + "\n")
       }
-      process.stderr.write("*   RPC provider used: " + call.result.callResult.rpcUrls[call.result.callResult.rpcUrlUsedIndex] + "\n")
+      process.stderr.write("*   RPC provider used: " + call.callResult.rpcUrls[call.callResult.rpcUrlUsedIndex] + "\n")
       
-      process.stderr.write("< " + formatBytes(call.result.callResult.data, verbosityLevel) + "\n")
+      process.stderr.write("< " + formatBytes(call.callResult.data, verbosityLevel) + "\n")
 
-      process.stderr.write("*   Resolved name: " + (call.result.decodedResult ? call.result.decodedResult : "(empty)") + "\n")
+      process.stderr.write("*   Resolved name: " + (call.decodedResult ? call.decodedResult : "(empty)") + "\n")
       process.stderr.write("*\n")
     }
     
@@ -259,10 +259,8 @@ try {
   const resolveModeDeterminationResult = await web3Client.determineResolveMode(parsedUrl.contractAddress, parsedUrl.chainId)
   // Web3 resolve mode: 'auto', 'manual' or 'resourceRequest'
   parsedUrl.mode = resolveModeDeterminationResult.mode
-  // The calldata sent to the contract to determine the resolve mode
-  parsedUrl.modeDeterminationCalldata = resolveModeDeterminationResult.calldata
-  // The data returned by the contract to determine the resolve mode
-  parsedUrl.modeDeterminationReturn = resolveModeDeterminationResult.return
+  // Infos about the mode determination
+  parsedUrl.modeDetermination = resolveModeDeterminationResult.modeDetermination
 }
 catch(err) {
   process.stderr.write("web3curl: Resolve mode determination: Error: " + err.message + "\n")
@@ -271,9 +269,16 @@ catch(err) {
 
 // Verbosity : Print mode determination infos
 if(verbosityLevel >= 1) {
-  process.stderr.write("> " + formatBytes(parsedUrl.modeDeterminationCalldata, verbosityLevel) + "\n")
-  process.stderr.write("< " + formatBytes(parsedUrl.modeDeterminationReturn, verbosityLevel) + "\n")
+  process.stderr.write("> " + formatBytes(parsedUrl.modeDetermination.calldata, verbosityLevel) + "\n")
+
+  for(let badRpcIndex = 0; badRpcIndex < parsedUrl.modeDetermination.callResult.rpcUrlUsedIndex; badRpcIndex++) {
+    process.stderr.write("* RPC provider error, skipped: " + parsedUrl.modeDetermination.callResult.rpcUrls[badRpcIndex] + " : " + parsedUrl.modeDetermination.callResult.rpcUrlsErrors[badRpcIndex] + "\n")
+  }
+  process.stderr.write("* RPC provider used: " + parsedUrl.modeDetermination.callResult.rpcUrls[parsedUrl.modeDetermination.callResult.rpcUrlUsedIndex] + "\n")
+  
+  process.stderr.write("< " + formatBytes(parsedUrl.modeDetermination.callResult.data, verbosityLevel) + "\n")
   process.stderr.write("* Resolve mode: " + parsedUrl.mode + "\n")
+
   process.stderr.write("*\n")
 
   process.stderr.write("* Path parsing... \n")
