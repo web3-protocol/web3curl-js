@@ -33,11 +33,17 @@ const y = yargs(hideBin(process.argv))
     default: false,
     description: 'Make the operation even more and more talkative',
   })
-  .option('web3-chain', {
+  .option('chain-rpc', {
     alias: 'c',
     type: 'string',
     requiresArg: true,
-    description: "Add/override a chain definition. Format: <chain-id>=<rpc-provider-url>. Can be used multiple times. Examples: 1=https://eth-mainnet.alchemyapi.io/v2/<your_api_key> 42170=https://nova.arbitrum.io/rpc 5=http://127.0.0.1:8545"
+    description: "Add/override a chain RPC. Format: <chain-id>=<rpc-provider-url>. Can be used multiple times. Examples: 1=https://eth-mainnet.alchemyapi.io/v2/<your_api_key> 42170=https://nova.arbitrum.io/rpc 5=http://127.0.0.1:8545"
+  })
+  .option('chain-ens-registry', {
+    alias: 'ens',
+    type: 'string',
+    requiresArg: true,
+    description: "Add/override a chain ENS registry. Format: <chain-id>=<ens-registry-address>. Can be used multiple times. Examples: 1=0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e 31337=0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
   })
   .demandCommand(1)
 let args = y.parse()
@@ -63,14 +69,14 @@ if(process.argv.indexOf("-vvv") > -1) {
 // Get the default ones
 let chainList = getDefaultChainList()
 
-// Handle the addition/overrides
-if(args.web3Chain) {
-  if((args.web3Chain instanceof Array) == false) {
-    args.web3Chain = [args.web3Chain]
+// Handle the RPC addition/overrides
+if(args.chainRpc) {
+  if((args.chainRpc instanceof Array) == false) {
+    args.chainRpc = [args.chainRpc]
   }
 
   let chainOverrides = []
-  args.web3Chain.map(newChain => newChain.split('=')).map(newChainComponents => {
+  args.chainRpc.map(newChain => newChain.split('=')).map(newChainComponents => {
     if(newChainComponents.length <= 1) {
       console.log("Chain format is invalid");
       process.exit(1)
@@ -119,6 +125,37 @@ if(args.web3Chain) {
     }
   })
 }    
+
+// Handle the ENS registry addition/overrides
+if(args.chainEnsRegistry) {
+  if((args.chainEnsRegistry instanceof Array) == false) {
+    args.chainEnsRegistry = [args.chainEnsRegistry]
+  }
+
+  args.chainEnsRegistry.map(newChain => newChain.split('=')).map(newChainComponents => {
+    if(newChainComponents.length <= 1) {
+      console.log("Chain format is invalid");
+      process.exit(1)
+    }
+    let chainId = parseInt(newChainComponents[0]);
+    if(isNaN(chainId) || chainId <= 0) {
+      console.log("Chain id is invalid");
+      process.exit(1)
+    }
+    let chainEnsRegistry = newChainComponents.slice(1).join("=");
+
+    // Find if chain is already overriden
+    let existingChain = Object.entries(chainList).find(chain => chain[1].id == chainId) || null
+
+    // If already exist, add/update the ENS registry to the list
+    if(existingChain) {
+      if(chainList[existingChain[0]].contracts === undefined) {
+        chainList[existingChain[0]].contracts = {}
+      }
+      chainList[existingChain[0]].contracts.ensRegistry = { address: chainEnsRegistry }
+    }
+  })
+}
 
 
 //

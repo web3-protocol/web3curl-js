@@ -21,7 +21,7 @@
   },
   "type": "module",
   "dependencies": {
-    "web3protocol": "^0.5.8",
+    "web3protocol": "^0.5.11",
     "yargs": "^17.7.2"
   }
 }

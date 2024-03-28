@@ -30,10 +30,10 @@ npx web3curl "web3://0xA5aFC9fE76a28fB12C60954Ed6e2e5f8ceF64Ff2/resourceName"
 
 ## Working with local/custom nodes
 
-If you want to override a chain RPC, or add new chains, use the ``--web3-chain`` option. For example, to use a local node for the mainnet chain : 
+If you want to override a chain RPC, or add new chains, use the ``--chain-rpc`` option. For example, to use a local node for the mainnet chain : 
 
 ```bash
-web3curl --web3-chain 1=http://127.0.0.1:8545 "web3://0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6/testFunc/1?returns=(uint)"
+web3curl --chain-rpc 1=http://127.0.0.1:8545 "web3://0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6/testFunc/1?returns=(uint)"
 ```
 
 ## Debugging
