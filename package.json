@@ -1,6 +1,6 @@
 {
   "name": "web3curl",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "Curl-like app for ERC-6860 / ERC-4804 web3:// URLs",
   "main": "src/index.js",
   "scripts": {
@@ -21,7 +21,7 @@
   },
   "type": "module",
   "dependencies": {
-    "web3protocol": "^0.5.14",
+    "web3protocol": "^0.6.0",
     "yargs": "^17.7.2"
   }
 }
